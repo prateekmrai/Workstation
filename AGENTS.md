@@ -3,7 +3,14 @@
 This repo is shared between Claude Code and Codex, on both the desktop and the laptop.
 Conversations don't carry over between tools or machines, so `context/` holds the memory.
 
-## At the start of every session
+## Automatic sync (hooks)
+Hooks in `.claude/settings.json` and `.codex/hooks.json` run `scripts/context-sync.sh`:
+- **Session start:** pulls the latest from git and loads `HANDOFF.md` and recent `LOG.md` into context.
+- **End of each turn:** if `HANDOFF.md` wasn't updated this turn, you'll be asked to update it
+  (or `touch` it if nothing worth recording happened). Then the hook commits and pushes `context/`.
+Don't commit `context/` yourself; the hook does it.
+
+## At the start of every session (if hooks didn't run)
 1. Run `git pull` so this machine has the latest context.
 2. Read `context/HANDOFF.md`. It's the current state of the work.
 3. Skim the last few entries of `context/LOG.md` if you need more history.
@@ -13,7 +20,7 @@ Conversations don't carry over between tools or machines, so `context/` holds th
 - Record decisions, preferences and facts worth remembering in `context/HANDOFF.md` as they come up.
   Don't wait until the end.
 
-## When the user says "handoff", "save", "wrap up", or the session is ending
+## Manual handoff (if hooks aren't running, or the user says "handoff" / "save")
 1. Rewrite `context/HANDOFF.md` so someone with no memory of this chat could continue:
    current goal, what's done, what's in progress, next steps, open questions, key decisions.
 2. Append a short dated entry to the top of `context/LOG.md` with the tool and machine used

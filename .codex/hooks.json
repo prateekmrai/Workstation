@@ -1,0 +1,13 @@
+{
+  "hooks": {
+    "SessionStart": [
+      { "matcher": "startup|resume", "hooks": [ { "type": "command", "command": "bash \"$(git rev-parse --show-toplevel)/scripts/context-sync.sh\" start codex", "timeout": 30 } ] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "bash \"$(git rev-parse --show-toplevel)/scripts/context-sync.sh\" prompt codex" } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "bash \"$(git rev-parse --show-toplevel)/scripts/context-sync.sh\" stop codex", "timeout": 30 } ] }
+    ]
+  }
+}
