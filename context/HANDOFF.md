@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-11-13 · Claude_
+_Last updated: 2026-11-20 · Claude_
 
 ## Current goal
 Share files and conversation context between Claude Code and Codex across the desktop and laptop.
@@ -16,6 +16,8 @@ Share files and conversation context between Claude Code and Codex across the de
 
 ## Open questions
 - Codex hook file format was written from search results, not the official docs (blocked from the cloud session). Verify with `/hooks` in Codex.
+
+- Optional: to control laptop/desktop from a cloud session, install the Claude desktop app on each and share the folder via Settings → Claude Code → Remote Control (one computer per cloud session; feature may not be available to all accounts yet).
 
 ## Key decisions & preferences
 - Git is the sync method between machines; each tool's own data (`~/.claude`, `~/.codex`) is not synced.
