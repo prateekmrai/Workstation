@@ -1,6 +1,9 @@
 # Session log (newest first)
 
 ## 2026-11-20 · Claude · cloud
+A1 CRM returns: added editable per-return restocking fee (still in unapplied migration 0009).
+
+## 2026-11-20 · Claude · cloud
 Built A1 CRM Returns section (a1-crm branch claude/inspiring-hypatia-7mppb9); migration 0009 not yet applied.
 
 ## 2026-11-13 · Claude · cloud

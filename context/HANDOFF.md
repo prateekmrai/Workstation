@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-11-20 · Claude · cloud_
+_Last updated: 2026-11-20 · Claude · cloud (restocking fee added)_
 
 ## Current goal
 A1 CRM (`prateekmrai/a1-crm`): new **Returns** section. Built and pushed to branch
@@ -25,7 +25,10 @@ A1 CRM (`prateekmrai/a1-crm`): new **Returns** section. Built and pushed to bran
 ## Decisions (from user)
 - Estimates come from both Workbench and QuickBooks; uploads are mostly Workbench PDFs.
 - Inventory: paperwork only. CRM does not change item counts; stock goes back in QuickBooks.
-- Line edits: return qty, override credit amount, condition/reason. No restocking fee.
+- Line edits: return qty, override credit amount, condition/reason.
+- Restocking fee: editable dollar amount per return (varies by customer), default $0,
+  subtracted from the customer's credit. Stored in `estimate_returns.restocking_fee`;
+  `credit_total` = net credit. Not remembered per customer (could add a customer default later).
 
 ## Next steps
 - User applies migration 0009 in Supabase (SQL editor), then deploy the branch.
