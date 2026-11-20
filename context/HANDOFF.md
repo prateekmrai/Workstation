@@ -1,21 +1,36 @@
 # Handoff
 
-_Last updated: 2026-11-13 · Claude_
+_Last updated: 2026-11-20 · Claude · cloud_
 
 ## Current goal
-Share files and conversation context between Claude Code and Codex across the desktop and laptop.
+A1 CRM (`prateekmrai/a1-crm`): new **Returns** section. Built and pushed to branch
+`claude/inspiring-hypatia-7mppb9`. Not merged, not deployed, no PR yet.
 
-## Done
-- Created `AGENTS.md` (read by Codex) and `CLAUDE.md` (imports it for Claude Code).
-- Created `context/HANDOFF.md` (current state) and `context/LOG.md` (history).
-- Added automatic sync: `scripts/context-sync.sh`, called by hooks in `.claude/settings.json` and `.codex/hooks.json` (session start: pull + load context; end of turn: update handoff, commit, push).
+## Done (a1-crm)
+- Migration `supabase/migrations/0009_returns.sql` (**not applied yet**): adds `estimate_number`
+  (EST-1001…) and `pdf_sha256` to `estimate_packets`, plus a new `estimate_returns` table
+  (manager-only RLS, RET-5001…, idempotent create key).
+- `/returns/new`: enter estimate number OR upload PDF/photo → pick lines → return qty,
+  credit override, condition (resellable/damaged/defective), reason → Process refund.
+  - Workbench PDFs: exact (fingerprint match, or date+total+line-count match to a saved
+    estimate, else read by column position). QuickBooks PDFs: best effort, rows kept only
+    if qty × rate = amount; manager edits everything. Photos: preview + type lines by hand.
+- `/returns`: saved returns home → **Warehouse slip** (inbound receiving slip, no prices,
+  "DO NOT RESTOCK" for damaged/defective) and **Customer estimate** (original lines,
+  returned credit lines, updated total).
+- Saved estimates page shows EST numbers and "Start a return"; nav + office desk tile added.
+- Verified: 69 tests, lint, typecheck, build; full click-through in Chromium on a local fake
+  Supabase (desktop + phone).
+
+## Decisions (from user)
+- Estimates come from both Workbench and QuickBooks; uploads are mostly Workbench PDFs.
+- Inventory: paperwork only. CRM does not change item counts; stock goes back in QuickBooks.
+- Line edits: return qty, override credit amount, condition/reason. No restocking fee.
 
 ## Next steps
-- Clone this repo on both the desktop and the laptop, then open Claude Code and Codex from that folder.
-- Try it: in one tool, say "handoff"; in the other, start a session and check that it picks up.
+- User applies migration 0009 in Supabase (SQL editor), then deploy the branch.
+- Test with a real QuickBooks estimate PDF; tune the parser if lines aren't picked up.
+- Workbench PDFs downloaded *before* saving online don't carry the EST number on the page.
 
 ## Open questions
-- Codex hook file format was written from search results, not the official docs (blocked from the cloud session). Verify with `/hooks` in Codex.
-
-## Key decisions & preferences
-- Git is the sync method between machines; each tool's own data (`~/.claude`, `~/.codex`) is not synced.
+- Codex hook file format still unverified (see LOG 2026-11-13).
