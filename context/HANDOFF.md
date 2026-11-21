@@ -1,39 +1,47 @@
 # Handoff
 
-_Last updated: 2026-11-20 · Claude · cloud (restocking fee added)_
+_Last updated: 2026-11-21 · Claude · cloud_
 
 ## Current goal
-A1 CRM (`prateekmrai/a1-crm`): new **Returns** section. Built and pushed to branch
-`claude/inspiring-hypatia-7mppb9`. Not merged, not deployed, no PR yet.
+Returns desk for **A1 Essentials** (the live A1 team site, a1bmscteam.com). Built and pushed;
+not merged, not deployed, migration not applied.
 
-## Done (a1-crm)
-- Migration `supabase/migrations/0009_returns.sql` (**not applied yet**): adds `estimate_number`
-  (EST-1001…) and `pdf_sha256` to `estimate_packets`, plus a new `estimate_returns` table
-  (manager-only RLS, RET-5001…, idempotent create key).
-- `/returns/new`: enter estimate number OR upload PDF/photo → pick lines → return qty,
-  credit override, condition (resellable/damaged/defective), reason → Process refund.
-  - Workbench PDFs: exact (fingerprint match, or date+total+line-count match to a saved
-    estimate, else read by column position). QuickBooks PDFs: best effort, rows kept only
-    if qty × rate = amount; manager edits everything. Photos: preview + type lines by hand.
-- `/returns`: saved returns home → **Warehouse slip** (inbound receiving slip, no prices,
-  "DO NOT RESTOCK" for damaged/defective) and **Customer estimate** (original lines,
-  returned credit lines, updated total).
-- Saved estimates page shows EST numbers and "Start a return"; nav + office desk tile added.
-- Verified: 69 tests, lint, typecheck, build; full click-through in Chromium on a local fake
-  Supabase (desktop + phone).
+## Where the code is
+- Live site source = `a1-crm` branch **`backup/sites-v234-source-20261120`** (Sites v234
+  snapshot from the desktop, 2026-11-20). `a1-crm` `main` is old (Sept 26). Don't build on it.
+- Returns work: `a1-crm` branch **`claude/essentials-returns`** (based on the v234 snapshot).
+- Older first attempt on stale code: branch `claude/inspiring-hypatia-7mppb9` (superseded).
+
+## Done (claude/essentials-returns)
+- Migration `supabase/migrations/20261121150000_a1_estimate_returns.sql` (**not applied**):
+  schema `a1_returns_private`, immutable returns numbered R+YYYYMM+4 digits, idempotent create,
+  over-return check in the DB, access via `a1_numbering_private.require_estimate_creator()`.
+  RPCs: `a1_create_estimate_return`, `a1_list_estimate_returns`, `a1_get_estimate_return`,
+  `a1_estimate_returned_quantities`. Tested on local Postgres 16 with stubs.
+- `/returns`, `/returns/new`, `/returns/[id]/warehouse`, `/returns/[id]/credit`. Returns tab in
+  the Essentials sidebar, "New return" on Essentials home. `/returns/new?id=<estimate uuid>` opens
+  an estimate directly. Not linked from the saved estimate page: that page is fingerprinted in
+  `docs/legacy-route-wrappers.json`.
+- Lookup by estimate number (`packet->>invoiceNumber`, e.g. E2026110012), with search fallback.
+  Upload: A1 PDFs open the saved estimate via "Invoice number:"; QB PDFs are parsed in the
+  browser (pdf.js). Rows are kept when qty × rate = amount.
+- Sales tax refunded at the estimate's rate (same rounding as `estimateTotals`). Restocking fee
+  per return. Credit = returned + tax − fee.
+- Tests: 11 new; full suite 1248/1251 (the 3 failures were already there: frozen-baseline checks
+  that need full git history). Lint has no new problems. Sites build OK. Browser QA done with a
+  fake Supabase (desktop and phone).
 
 ## Decisions (from user)
-- Estimates come from both Workbench and QuickBooks; uploads are mostly Workbench PDFs.
-- Inventory: paperwork only. CRM does not change item counts; stock goes back in QuickBooks.
-- Line edits: return qty, override credit amount, condition/reason.
-- Restocking fee: editable dollar amount per return (varies by customer), default $0,
-  subtracted from the customer's credit. Stored in `estimate_returns.restocking_fee`;
-  `credit_total` = net credit. Not remembered per customer (could add a customer default later).
+- Both Workbench/Essentials and QuickBooks estimates. Inventory: paperwork only.
+- Line edits: return qty, credit override, condition/reason. Restocking fee: $ per return.
 
 ## Next steps
-- User applies migration 0009 in Supabase (SQL editor), then deploy the branch.
-- Test with a real QuickBooks estimate PDF; tune the parser if lines aren't picked up.
-- Workbench PDFs downloaded *before* saving online don't carry the EST number on the page.
+- User: apply the migration in Supabase, then deploy the branch through the usual Sites process.
+- Try a real QuickBooks estimate PDF and tune the parser if needed.
+- Phone nav already overflowed before this change (Schedule/Assignments/Authorizations).
+  The Returns tab adds 49px. Possible follow-up.
+- Desktop Remote Control: the "Documents" folder shows as not usable from cloud sessions.
+  Likely needs a Claude app update.
 
 ## Open questions
 - Codex hook file format still unverified (see LOG 2026-11-13).

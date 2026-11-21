@@ -1,5 +1,8 @@
 # Session log (newest first)
 
+## 2026-11-21 · Claude · cloud
+Found live A1 Essentials source (a1-crm backup/sites-v234-source-20261120); built returns desk on branch claude/essentials-returns. Migration not applied yet.
+
 ## 2026-11-20 · Claude · cloud
 A1 CRM returns: added editable per-return restocking fee (still in unapplied migration 0009).
 
